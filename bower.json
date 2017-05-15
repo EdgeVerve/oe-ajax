@@ -3,7 +3,8 @@
   "main": "oe-ajax.html",
   "dependencies": {
     "polymer": "Polymer/polymer#^1.4.0",
-    "oe-utils": "http://github.com/EdgeVerve/oe-utils.git"
+    "oe-utils": "http://github.com/EdgeVerve/oe-utils.git",
+    "promise-polyfill": "polymerlabs/promise-polyfill#^1.0.0"
   },
   "keywords": [
     "polymer",

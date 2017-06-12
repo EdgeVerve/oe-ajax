@@ -5,7 +5,7 @@
 
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../promise-polyfill/promise-polyfill-lite.html">
-<script src="../oe-utils/base-utils.js"></script>
+<script src="../oe-utils/oe-utils.js"></script>
 <!--
 oe-request can be used to perform XMLHttpRequests.
 
@@ -15,7 +15,7 @@ oe-request can be used to perform XMLHttpRequests.
 -->
 <script>
   'use strict'
-  var baseUtils = baseUtils || {};
+  var OEUtils = OEUtils || {};
 
 
 
@@ -241,7 +241,7 @@ oe-request can be used to perform XMLHttpRequests.
         this.resolveCompletes(this);
       }.bind(this));
 
-      options.url = baseUtils.geturl(options.url);
+      options.url = OEUtils.geturl(options.url);
       this.url = options.url;
 
       xhr.open(

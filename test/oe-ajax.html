@@ -702,7 +702,7 @@
             });
 
             suite('when making a POST over the wire', function() {
-                test('FormData is handled correctly', function() {
+                test('FormData is handled correctly', function(done) {
                     server.restore();
                     var requestBody = new FormData();
                     requestBody.append('a', 'foo');
@@ -715,11 +715,12 @@
                             /^multipart\/form-data; boundary=.*$/);
                         expect(ajax.lastResponse.form.a).to.be.equal('foo');
                         expect(ajax.lastResponse.form.b).to.be.equal('bar');
+                        done();
                     });
                     server.respond();
                     return promise;
                 });
-                test('json is handled correctly', function() {
+                test('json is handled correctly', function(done) {
                     server.restore();
                     var ajax = fixture('RealPost');
                     ajax.body = JSON.stringify({
@@ -732,9 +733,10 @@
                             /^application\/json(;.*)?$/);
                         expect(ajax.lastResponse.json.a).to.be.equal('foo');
                         expect(ajax.lastResponse.json.b).to.be.equal('bar');
+                        done();
                     });
                 });
-                test('urlencoded data is handled correctly', function() {
+                test('urlencoded data is handled correctly', function(done) {
                     server.restore();
                     var ajax = fixture('RealPost');
                     ajax.body = 'a=foo&b=bar';
@@ -743,9 +745,10 @@
                             /^application\/x-www-form-urlencoded(;.*)?$/);
                         expect(ajax.lastResponse.form.a).to.be.equal('foo');
                         expect(ajax.lastResponse.form.b).to.be.equal('bar');
+                        done();
                     });
                 });
-                test('xml is handled correctly', function() {
+                test('xml is handled correctly', function(done) {
                     server.restore();
                     var ajax = fixture('RealPost');
                     var xmlDoc = document.implementation.createDocument(
@@ -759,6 +762,7 @@
                             /^application\/xml(;.*)?$/);
                         expect(ajax.lastResponse.data).to.match(
                             /<foo\s*><bar\s+name="baz"\s*\/><\/foo\s*>/);
+                            done();
                     });
                 });
             });

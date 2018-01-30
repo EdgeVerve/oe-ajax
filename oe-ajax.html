@@ -339,9 +339,10 @@ element.
             var queryParts = [];
             var param;
             var value;
+            var self = this;
 
-            for (param in this.params) {
-                value = this.params[param];
+            Object.keys(this.params).forEach(function(param) {
+                value = self.params[param];
                 param = window.encodeURIComponent(param);
 
                 if (Array.isArray(value)) {
@@ -353,7 +354,7 @@ element.
                 } else {
                     queryParts.push(param);
                 }
-            }
+            });
 
             return queryParts.join('&');
         },
@@ -398,9 +399,10 @@ element.
             }
             var header;
             if (this.headers instanceof Object) {
-                for (header in this.headers) {
-                    headers[header] = this.headers[header].toString();
-                }
+                var self = this;
+                Object.keys(this.headers).forEach(function(header) {
+                    headers[header] = self.headers[header].toString();
+                });
             }
 
             return headers;

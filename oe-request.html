@@ -253,9 +253,9 @@ oe-request can be used to perform XMLHttpRequests.
             }[options.handleAs];
             var headers = options.headers || Object.create(null);
             var newHeaders = Object.create(null);
-            for (var key in headers) {
+            Object.keys(headers).forEach(function(key) {
                 newHeaders[key.toLowerCase()] = headers[key];
-            }
+            });
             headers = newHeaders;
 
             if (acceptType && !headers['accept']) {

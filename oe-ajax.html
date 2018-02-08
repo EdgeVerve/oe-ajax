@@ -341,7 +341,7 @@ element.
             var value;
             var self = this;
 
-            Object.keys(this.params).forEach(function(param) {
+            this.params && Object.keys(this.params).forEach(function(param) {
                 value = self.params[param];
                 param = window.encodeURIComponent(param);
 
@@ -400,7 +400,7 @@ element.
             var header;
             if (this.headers instanceof Object) {
                 var self = this;
-                Object.keys(this.headers).forEach(function(header) {
+                this.headers && Object.keys(this.headers).forEach(function(header) {
                     headers[header] = self.headers[header].toString();
                 });
             }

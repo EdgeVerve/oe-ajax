@@ -197,7 +197,10 @@ oe-request can be used to perform XMLHttpRequests.
             var xhr = this.xhr;
             var self = this;
 
-            if (window.cordova) {
+
+            // if ((!window.cordova) && CERTIFICATE_PINNED) {
+
+            if (!CERTIFICATE_PINNED) {
 
                 if (xhr.readyState > 0) {
                     return null;
@@ -231,9 +234,7 @@ oe-request can be used to perform XMLHttpRequests.
                 // Called after all of the above.
                 xhr.addEventListener('loadend', function () {
                     this._updateStatus();
-                    debugger
                     this._setResponse(this.parseResponse());
-
 
                     if (!this.succeeded) {
                         this.rejectCompletes(new Error('The request failed with status code: ' + this.xhr.status));
@@ -313,42 +314,50 @@ oe-request can be used to perform XMLHttpRequests.
 
             } else {
 
-                options.headers["accept"] = "application/json";
+                options.headers["accept"] = {
+                    'json': 'application/json',
+                    'text': 'text/plain',
+                    'html': 'text/html',
+                    'xml': 'application/xml',
+                    'arraybuffer': 'application/octet-stream'
+                }[options.handleAs];
 
                 const optionsCordova = {
                     method: options.method,
-                    data: JSON.parse(options.body),
+                    data: (typeof options.body === "object") ? options.body : JSON.parse(options.body),
                     headers: options.headers
                 };
 
                 options.url = OEUtils.geturl(options.url);
 
-                if (CERTIFICATE_PINNED) {
+                cordova.plugin.http.sendRequest(options.url, optionsCordova, function (response) {
 
-                    cordova.plugin.http.sendRequest(options.url, optionsCordova, function (response) {
+                    self._setStatus(response.status);
+                    self._setStatusText('');
+                    self._setResponse(JSON.parse(response.data));
 
-                        self._setStatus(response.status);
-                        self._setStatusText('');
-                        self._setResponse(JSON.parse(response.data));
+                    // if (!self.succeeded) {
+                    //     self.rejectCompletes(new Error('The request failed with status code: ' + response.status));
+                    //     return;
+                    // }
 
-                        if (!self.succeeded) {
-                            self.rejectCompletes(new Error('The request failed with status code: ' + response.status));
-                            return;
-                        }
+                    self.resolveCompletes(self);
 
-                        self.resolveCompletes(self);
+                }, function (response) {
 
-                    }, function (response) {
-
-                        self._setStatus(response.status);
-                        self._setStatusText('');
-                        self._setResponse(JSON.parse(response.error));
-
-                        self.rejectCompletes(new Error('The request failed with status code: ' + response.status));
+                    if(response.status === -1) {
+                        alert("Unexpected error occured.");
                         return;
-                    });
+                    }
 
-                }
+                    self._setStatus(response.status);
+                    self._setStatusText('');
+                    self._setResponse(JSON.parse(response.error));
+
+                    self.rejectCompletes(new Error('The request failed with status code: ' + response.status));
+                    return;
+                });
+
             }
 
             return this.completes;

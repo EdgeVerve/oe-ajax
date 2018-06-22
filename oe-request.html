@@ -322,15 +322,73 @@ oe-request can be used to perform XMLHttpRequests.
                     'arraybuffer': 'application/octet-stream'
                 }[options.handleAs];
 
-                const optionsCordova = {
-                    method: options.method,
-                    data: (typeof options.body === "object") ? options.body : JSON.parse(options.body),
-                    headers: options.headers
-                };
+                //Data Type
+                options.serializer = "utf8";
+                //BODY
+                console.log(options.body);
+                console.log(options.headers);
 
-                options.url = OEUtils.geturl(options.url);
+                options.data = options.body;
+                //                options.headers["content-type"] = "application/x-www-form-urlencoded"
 
-                cordova.plugin.http.sendRequest(options.url, optionsCordova, function (response) {
+                //                options.data = encodeURI(options.data);
+
+                console.log("Sharty");
+                console.log(options.headers);
+                console.log(options.url);
+                console.log(options.body);
+
+                //Deciding to encode or not
+                var plainURL = options.url;
+                var requestParts = plainURL.split("?");
+                if (requestParts.length > 1) {
+                    var base = requestParts[0];
+                    var path = requestParts[1];                    
+                    var originalURL = path
+                    var decodedURL = decodeURIComponent(originalURL);
+                    //decodedURL = decodeURIComponent(options.url);
+                    var finalURL = null;
+                    console.log("Shart1");
+                    console.log(originalURL);
+                    console.log(base);
+                    console.log(decodedURL);
+                    /*A case where the URL is not encoded*/
+                    if (decodedURL === originalURL) {
+                        finalURL = encodeURIComponent(originalURL);
+                        console.log("Shart2");
+                        console.log(finalURL);
+                    } else {
+                        /*A case where the URL could be encoded*/
+                        var encodedDecodedURL = encodeURIComponent(decodedURL);
+                        console.log("Shartyy");
+                        console.log(encodedDecodedURL);
+                        if (encodedDecodedURL === originalURL) {
+                            //URL appears to be encoded
+                            finalURL = originalURL;
+                            console.log("Shart4");
+                            console.log(finalURL);
+                        } else {
+                            //A rare case where the URL is not encoded and has a encoded pattern
+                            finalURL = encodeURIComponent(originalURL);
+                            console.log("Shart5");
+                            console.log(finalURL);
+                        }
+                        console.log("Shart6");
+                        console.log(finalURL);
+                    }
+                    finalURL = base + "?" + finalURL;
+                    finalURL = OEUtils.geturl(finalURL);
+                }else{
+                    finalURL = OEUtils.geturl(plainURL);
+                }
+
+                
+
+                console.log(finalURL);
+                console.log("Tommy1");
+                console.log(options.data);
+
+                cordova.plugin.http.sendRequest(finalURL, options, function (response) {
 
                     self._setStatus(response.status);
                     self._setStatusText('');
@@ -345,7 +403,7 @@ oe-request can be used to perform XMLHttpRequests.
 
                 }, function (response) {
 
-                    if(response.status === -1) {
+                    if (response.status === -1) {
                         alert("Unexpected error occured.");
                         return;
                     }

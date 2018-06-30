@@ -500,9 +500,9 @@ element.
                 this._setLastError({
                     request: request,
                     error: error,
-                    status: request.xhr.status || request.status,                // or condition added for cordova plugin http
-                    statusText: request.xhr.statusText || request.statusText,
-                    response: request.xhr.response || request.response
+                    status: request.xhr.status, // || request.status,               
+                    statusText: request.xhr.statusText, // || request.statusText,
+                    response: request.xhr.response // || request.response
                 });
                 this._setLastResponse(null);
                 this._setLoading(false);

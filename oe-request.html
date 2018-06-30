@@ -324,17 +324,8 @@ oe-request can be used to perform XMLHttpRequests.
 
                 //Data Type
                 options.serializer = "json";
-                //BODY
-                //                console.log(options.body);
-                //                console.log(options.headers);
 
                 options.data = ((typeof (options.body)) === "object") ? options.body : JSON.parse(options.body);
-                //                options.headers["content-type"] = "application/x-www-form-urlencoded"
-                //                options.data = encodeURI(options.data);
-
-                //                console.log(options.headers);
-                //                console.log(options.url);
-                //                console.log(options.data);
                 options.body = null;
                 //Deciding to encode or not
                 var plainURL = options.url;
@@ -345,11 +336,8 @@ oe-request can be used to perform XMLHttpRequests.
                     var path = requestParts[1];
                     var originalURL = path
                     var decodedURL = decodeURI(originalURL);
-                    //decodedURL = decodeURIComponent(options.url);
                     var finalURL = null;
-                    //                    console.log(originalURL);
-                    //                    console.log(base);
-                    //                    console.log(decodedURL);
+
                     /*A case where the URL is not encoded*/
                     if (decodedURL === originalURL) {
                         finalURL = encodeURI(originalURL);
@@ -376,19 +364,12 @@ oe-request can be used to perform XMLHttpRequests.
                     finalURL = OEUtils.geturl(plainURL);
                 }
 
-                //                console.log(finalURL);
-                //                console.log(options.data);
 
                 cordova.plugin.http.sendRequest(finalURL, options, function (response) {
 
                     self._setStatus(response.status);
                     self._setStatusText('');
                     self._setResponse(JSON.parse(response.data));
-
-                    // if (!self.succeeded) {
-                    //     self.rejectCompletes(new Error('The request failed with status code: ' + response.status));
-                    //     return;
-                    // }
 
                     self.resolveCompletes(self);
 
@@ -402,6 +383,14 @@ oe-request can be used to perform XMLHttpRequests.
                     self._setStatus(response.status);
                     self._setStatusText('');
                     self._setResponse(JSON.parse(response.error));
+
+                    var xhrObj = {
+                        status: response.status,
+                        statusText: '',
+                        response: JSON.parse(response.error)
+                    }
+
+                    self._setXhr(xhrObj);
 
                     self.rejectCompletes(new Error('The request failed with status code: ' + response.status));
                     return;

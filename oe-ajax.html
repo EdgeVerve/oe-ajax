@@ -82,7 +82,7 @@ element.
              */
             params: {
                 type: Object,
-                value: function () {
+                value: function() {
                     return {};
                 }
             },
@@ -112,7 +112,7 @@ element.
              */
             headers: {
                 type: Object,
-                value: function () {
+                value: function() {
                     return {};
                 }
             },
@@ -273,7 +273,7 @@ element.
                 type: Array,
                 notify: true,
                 readOnly: true,
-                value: function () {
+                value: function() {
                     return [];
                 }
             },
@@ -318,7 +318,7 @@ element.
 
             _boundHandleResponse: {
                 type: Function,
-                value: function () {
+                value: function() {
                     return this._handleResponse.bind(this);
                 }
             }
@@ -341,7 +341,7 @@ element.
             var value;
             var self = this;
 
-            this.params && Object.keys(this.params).forEach(function (param) {
+            this.params && Object.keys(this.params).forEach(function(param) {
                 value = self.params[param];
                 param = window.encodeURIComponent(param);
 
@@ -400,7 +400,7 @@ element.
             var header;
             if (this.headers instanceof Object) {
                 var self = this;
-                this.headers && Object.keys(this.headers).forEach(function (header) {
+                this.headers && Object.keys(this.headers).forEach(function(header) {
                     headers[header] = self.headers[header].toString();
                 });
             }
@@ -422,7 +422,7 @@ element.
          *   jsonPrefix: (string|undefined),
          *   withCredentials: (boolean|undefined)}}
          */
-        toRequestOptions: function () {
+        toRequestOptions: function() {
             return {
                 url: this.requestUrl || '',
                 method: this.method,
@@ -441,7 +441,7 @@ element.
          *
          * @return {!IronRequestElement}
          */
-        generateRequest: function () {
+        generateRequest: function() {
             var request = /** @type {!IronRequestElement} */ (document.createElement('oe-request'));
             var requestOptions = this.toRequestOptions();
 
@@ -464,20 +464,20 @@ element.
                 request: request,
                 options: requestOptions
             }, {
-                    bubbles: this.bubbles
-                });
+                bubbles: this.bubbles
+            });
 
             this.fire('oe-ajax-request', {
                 request: request,
                 options: requestOptions
             }, {
-                    bubbles: this.bubbles
-                });
+                bubbles: this.bubbles
+            });
 
             return request;
         },
 
-        _handleResponse: function (request) {
+        _handleResponse: function(request) {
             if (request === this.lastRequest) {
                 this._setLastResponse(request.response);
                 this._setLastError(null);
@@ -491,7 +491,7 @@ element.
             });
         },
 
-        _handleError: function (request, error) {
+        _handleError: function(request, error) {
             if (this.verbose) {
                 Polymer.Base._error(error);
             }
@@ -500,9 +500,9 @@ element.
                 this._setLastError({
                     request: request,
                     error: error,
-                    status: request.xhr.status, // || request.status,               
-                    statusText: request.xhr.statusText, // || request.statusText,
-                    response: request.xhr.response // || request.response
+                    status: request.xhr.status,
+                    statusText: request.xhr.statusText,
+                    response: request.xhr.response
                 });
                 this._setLastResponse(null);
                 this._setLoading(false);
@@ -513,18 +513,18 @@ element.
                 request: request,
                 error: error
             }, {
-                    bubbles: this.bubbles
-                });
+                bubbles: this.bubbles
+            });
 
             this.fire('error', {
                 request: request,
                 error: error
             }, {
-                    bubbles: this.bubbles
-                });
+                bubbles: this.bubbles
+            });
         },
 
-        _discardRequest: function (request) {
+        _discardRequest: function(request) {
             var requestIndex = this.activeRequests.indexOf(request);
 
             if (requestIndex > -1) {
@@ -532,8 +532,8 @@ element.
             }
         },
 
-        _requestOptionsChanged: function () {
-            this.debounce('generate-request', function () {
+        _requestOptionsChanged: function() {
+            this.debounce('generate-request', function() {
                 if (this.url == null) {
                     return;
                 }

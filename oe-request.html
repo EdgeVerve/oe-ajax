@@ -197,10 +197,31 @@ oe-request can be used to perform XMLHttpRequests.
             var xhr = this.xhr;
             var self = this;
 
+            /**
+             * The requests made through oe-request have two options. If certificate pinning is needed while being used in 
+             * a hybrid mobile app environment, the "else" clause is considered. Otherwise, the execution flows through the "if"
+             * clause and makes regular xhr request.
+             * 
+             * In case of certificate pinning, the request is diverted through a cordova plugin(cordova-plugin-advanced-http) to 
+             * perform the necessary certificate verification.
+             * 
+             * window.CERTIFICATE_PINNED - This is a flag used to control certificate pinning check 
+             *  
+             * var CERTIFICATE_PINNED = false;
+             * 
+             * Follow the example below to call the plugin and pass the CERTIFICATE_PINNED  status
 
-            // if ((!window.cordova) && CERTIFICATE_PINNED) {
+                    cordova.plugin.http.enableSSLPinning(window.CERTIFICATE_PINNED, function () {
+                        console.log("Enabled certificate pinning.");
+                    }, function () {
+                        console.log("Error occured while enabling certificate pinning.");
+                    });
+                    
+            */
 
-            if (!CERTIFICATE_PINNED) {
+            var enableCertificate = window.CERTIFICATE_PINNED || false;
+
+            if (!window.cordova || !enableCertificate) {
 
                 if (xhr.readyState > 0) {
                     return null;
@@ -341,23 +362,10 @@ oe-request can be used to perform XMLHttpRequests.
                     /*A case where the URL is not encoded*/
                     if (decodedURL === originalURL) {
                         finalURL = encodeURI(originalURL);
-                        //                        console.log(finalURL);
                     } else {
-                        /*A case where the URL could be encoded*/
-                        /*var encodedDecodedURL = encodeURI(decodedURL);
-                        console.log(encodedDecodedURL);
-                        if (encodedDecodedURL === originalURL) {*/
-                        //URL appears to be encoded
-                        /*finalURL = originalURL;
-                        console.log(finalURL);
-                    } else {*/
-                        //A rare case where the URL is not encoded and has a encoded pattern
-                        /*finalURL = encodeURI(originalURL);
-                        console.log(finalURL);
-                    }
-                    console.log(finalURL);*/
                         finalURL = originalURL;
                     }
+
                     finalURL = base + "?" + finalURL;
                     finalURL = OEUtils.geturl(finalURL);
                 } else {
@@ -391,7 +399,6 @@ oe-request can be used to perform XMLHttpRequests.
                     }
 
                     self._setXhr(xhrObj);
-
                     self.rejectCompletes(new Error('The request failed with status code: ' + response.status));
                     return;
                 });

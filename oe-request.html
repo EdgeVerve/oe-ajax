@@ -205,11 +205,12 @@ oe-request can be used to perform XMLHttpRequests.
              * In case of certificate pinning, the request is diverted through a cordova plugin(cordova-plugin-advanced-http) to 
              * perform the necessary certificate verification.
              * 
-             * window.CERTIFICATE_PINNED - This is a flag used to control certificate pinning check 
-             *  
-             * var CERTIFICATE_PINNED = false;
              * 
-             * Follow the example below to call the plugin and pass the CERTIFICATE_PINNED  status
+             * window.CERTIFICATE_PINNED - This is a flag used to control certificate pinning check.
+             *  
+             * window.CERTIFICATE_PINNED = true;
+             * 
+             * Follow the example below to call the plugin and pass the window.CERTIFICATE_PINNED  status
 
                     cordova.plugin.http.enableSSLPinning(window.CERTIFICATE_PINNED, function () {
                         console.log("Enabled certificate pinning.");

@@ -84,62 +84,62 @@
                 server.restore();
             });
 
-            /*
-            suite('basic usage', function() {
 
-                test('creates network requests, requiring only `url`', function() {
+            suite('basic usage', function () {
+
+                test('creates network requests, requiring only `url`', function () {
                     request.send(successfulRequestOptions);
                     server.respond();
                     expect(request.response).to.be.ok;
                 });
 
-                test('timeout not set if synchronous', function() {
+                test('timeout not set if synchronous', function () {
                     request.send(synchronousSuccessfulRequestOptions);
 
                     expect(request.xhr.async).to.be.eql(false);
                     expect(request.xhr.timeout).to.be.eql(undefined);
                 });
 
-                test('timeout set if asynchronous', function() {
+                test('timeout set if asynchronous', function () {
                     request.send(asynchronousSuccessfulRequestOptions);
 
                     expect(request.xhr.async).to.be.eql(true);
                     expect(request.xhr.timeout).to.be.eql(100);
                 });
 
-                test('sets async to true by default', function() {
+                test('sets async to true by default', function () {
                     request.send(successfulRequestOptions);
                     expect(request.xhr.async).to.be.eql(true);
                 });
-                test('can be aborted', function() {
+                test('can be aborted', function () {
                     request.send(successfulRequestOptions);
                     request.abort();
                     server.respond();
-                    return request.completes.then(function() {
+                    return request.completes.then(function () {
                         throw new Error('Request did not abort appropriately!');
-                    }).catch(function(e) {
+                    }).catch(function (e) {
                         expect(e).to.exist;
                         expect(request.response).to.not.be.ok;
                     });
                 });
 
-                test('default responseType is text', function() {
+                test('default responseType is text', function () {
                     request.send(successfulRequestOptions);
                     server.respond();
-                    return request.completes.then(function() {
+                    return request.completes.then(function () {
                         expect(request.response).to.be.an('string')
                     });
                 });
-                test('default responseType of text is not applied, when async is false', function() {
+                test('default responseType of text is not applied, when async is false', function () {
                     var options = Object.create(successfulRequestOptions);
                     options.async = false;
                     request.send(options);
                     server.respond();
-                    return request.completes.then(function() {
+                    return request.completes.then(function () {
                         expect(request.xhr.responseType).to.be.empty;
                     });
                 });
-                test('responseType can be configured via handleAs option', function() {
+                test('responseType can be configured via handleAs option', function () {
                     var options = Object.create(successfulRequestOptions);
                     options.handleAs = 'json';
                     request.send(options);
@@ -147,11 +147,11 @@
                     expect(server.requests[0].requestHeaders.accept).to.be.equal(
                         'application/json');
                     server.respond();
-                    return request.completes.then(function() {
+                    return request.completes.then(function () {
                         expect(request.response).to.be.an('object');
                     });
                 });
-                test('setting jsonPrefix correctly strips it from the response', function() {
+                test('setting jsonPrefix correctly strips it from the response', function () {
                     var options = {
                         url: '/responds_to_get_with_prefixed_json',
                         handleAs: 'json',
@@ -162,13 +162,13 @@
                     expect(server.requests[0].requestHeaders['accept']).to.be.equal(
                         'application/json');
                     server.respond();
-                    return request.completes.then(function() {
+                    return request.completes.then(function () {
                         expect(request.response).to.deep.eq({
                             success: true
                         });
                     });
                 });
-                test('responseType cannot be configured via handleAs option, when async is false', function() {
+                test('responseType cannot be configured via handleAs option, when async is false', function () {
                     var options = Object.create(successfulRequestOptions);
                     options.handleAs = 'json';
                     options.async = false;
@@ -177,12 +177,12 @@
                     expect(server.requests[0].requestHeaders.accept).to.be.equal(
                         'application/json');
                     server.respond();
-                    return request.completes.then(function() {
+                    return request.completes.then(function () {
                         expect(request.response).to.be.a('string');
                     });
                 });
 
-                test('headers are sent up', function() {
+                test('headers are sent up', function () {
                     var options = Object.create(successfulRequestOptions);
                     options.headers = {
                         'foo': 'bar',
@@ -197,7 +197,7 @@
                         'this should override the default');
                 });
 
-                test('headers are deduped by lowercasing', function() {
+                test('headers are deduped by lowercasing', function () {
                     var options = Object.create(successfulRequestOptions);
                     options.headers = {
                         'foo': 'bar',
@@ -217,8 +217,8 @@
 
             });
 
-            suite('special cases', function() {
-                test('treats status code 0 as success, though the outcome is ambiguous', function() {
+            suite('special cases', function () {
+                test('treats status code 0 as success, though the outcome is ambiguous', function () {
 
                     // Note: file:// status code will probably be 0 no matter what happened.
                     request.send({
@@ -229,15 +229,15 @@
                 });
             });
 
-            suite('errors', function() {
-                test('treats status codes between 1 and 199 as errors', function() {
+            suite('errors', function () {
+                test('treats status codes between 1 and 199 as errors', function () {
                     request.send({
                         url: '/responds_to_get_with_100'
                     });
                     server.respond();
                     expect(request.succeeded).to.be.equal(false);
                 });
-                test('treats status codes between 300 and ∞ as errors', function() {
+                test('treats status codes between 300 and ∞ as errors', function () {
                     request.send({
                         url: '/responds_to_get_with_500'
                     });
@@ -246,8 +246,8 @@
                 });
             });
 
-            suite('status codes', function() {
-                test('status and statusText is set after a ambiguous request', function() {
+            suite('status codes', function () {
+                test('status and statusText is set after a ambiguous request', function () {
                     request.send({
                         url: '/responds_to_get_with_0'
                     });
@@ -255,7 +255,7 @@
                     expect(request.status).to.be.equal(0);
                     expect(request.statusText).to.be.equal('');
                 });
-                test('status and statusText is set after a request that succeeded', function() {
+                test('status and statusText is set after a request that succeeded', function () {
                     request.send({
                         url: '/responds_to_get_with_json'
                     });
@@ -263,7 +263,8 @@
                     expect(request.status).to.be.equal(200);
                     expect(request.statusText).to.be.equal('OK');
                 });
-                test('status and statusText is set after a request that failed', function() {
+
+                test('status and statusText is set after a request that failed', function () {
                     request.send({
                         url: '/responds_to_get_with_500'
                     });
@@ -272,7 +273,7 @@
                     expect(request.statusText).to.be.equal('Internal Server Error');
                 });
             });
-            */
+
 
             suite('Testing certificate pinning.', function () {
 
@@ -283,12 +284,49 @@
                         plugin: {
                             http: {
                                 sendRequest: function (url, options, successCb, errorCb) {
-                                    console.log("!!!!!!!!!!!!!!!");
-                                    var response = {
-                                        error: '{"xyz": "abc"}',
-                                        status: 100
+                                    var response;
+                                    switch (url) {
+                                        case '/responds_to_get_with_100':
+                                            response = {
+                                                error: '{"error": "Error occured with status 100"}',
+                                                status: 100
+                                            }
+                                            errorCb(response);
+                                            break;
+
+                                        case '/responds_to_get_with_500':
+                                            response = {
+                                                error: '{"error": "Error occured with status 500"}',
+                                                status: 500,
+                                                statusText: 'Internal Server Error'
+                                            }
+                                            errorCb(response);
+                                            break;
+
+                                        case '/responds_to_get_with_0':
+                                            response = {
+                                                error: '{"xyz": "abc"}',
+                                                status: 0
+                                            }
+                                            errorCb(response);
+                                            break;
+
+                                        case '/responds_to_get_with_json':
+                                            response = {
+                                                data: '{"xyz": "abc"}',
+                                                status: 200,
+                                                statusText: 'OK'
+                                            }
+                                            successCb(response);
+                                            break;
+
+                                        case 'Papayas':
+                                            console.log('Mangoes and papayas are $2.79 a pound.');
+                                            // expected output: "Mangoes and papayas are $2.79 a pound."
+                                            break;
+                                        default:
+                                            console.log('Sorry, we are out of ' + expr + '.');
                                     }
-                                    errorCb(response);
                                 }
                             }
 
@@ -304,6 +342,49 @@
                         body: null
                     });
                     expect(request.succeeded).to.be.equal(false);
+                });
+
+                test('treats status codes between 300 and ∞ as errors', function () {
+                    request.send({
+                        url: '/responds_to_get_with_500',
+                        headers: {},
+                        method: 'GET',
+                        body: null
+                    });
+                    expect(request.succeeded).to.be.equal(false);
+                });
+
+                test('status and statusText is set after a ambiguous request', function () {
+                    request.send({
+                        url: '/responds_to_get_with_0',
+                        headers: {},
+                        method: 'GET',
+                        body: null
+                    });
+                    expect(request.status).to.be.equal(0);
+                    expect(request.statusText).to.be.equal('');
+                });
+
+                test('status and statusText is set after a request that succeeded', function () {
+                    request.send({
+                        url: '/responds_to_get_with_json',
+                        headers: {},
+                        method: 'GET',
+                        body: null
+                    });
+                    expect(request.status).to.be.equal(200);
+                    expect(request.statusText).to.be.equal('OK');
+                });
+
+                test('status and statusText is set after a request that failed', function () {
+                    request.send({
+                        url: '/responds_to_get_with_500',
+                        headers: {},
+                        method: 'GET',
+                        body: null
+                    });
+                    expect(request.status).to.be.equal(500);
+                    expect(request.statusText).to.be.equal('Internal Server Error');
                 });
 
             });

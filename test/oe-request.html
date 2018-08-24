@@ -272,30 +272,40 @@
                     expect(request.statusText).to.be.equal('Internal Server Error');
                 });
             });
+            */
 
-        */
+            suite('Testing certificate pinning.', function () {
 
-            suite('Testig certificate pinning.', function () {
-
-                before(function () {
+                setup(function () {
                     // runs before all tests in this block
-                    console.log("Inside before func");
+                    window.CERTIFICATE_PINNED = true;
+                    window.cordova = {
+                        plugin: {
+                            http: {
+                                sendRequest: function (url, options, successCb, errorCb) {
+                                    console.log("!!!!!!!!!!!!!!!");
+                                    var response = {
+                                        error: '{"xyz": "abc"}',
+                                        status: 100
+                                    }
+                                    errorCb(response);
+                                }
+                            }
+
+                        }
+                    }
                 });
 
                 test('treats status codes between 1 and 199 as errors', function () {
                     request.send({
-                        url: '/responds_to_get_with_100'
+                        url: '/responds_to_get_with_100',
+                        headers: {},
+                        method: 'GET',
+                        body: null
                     });
-                    server.respond();
                     expect(request.succeeded).to.be.equal(false);
                 });
-                test('treats status codes between 300 and ∞ as errors', function () {
-                    request.send({
-                        url: '/responds_to_get_with_500'
-                    });
-                    server.respond();
-                    expect(request.succeeded).to.be.equal(false);
-                });
+
             });
 
         });

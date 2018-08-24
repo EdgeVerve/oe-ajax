@@ -20,23 +20,23 @@
 <body>
     <test-fixture id="TrivialRequest">
         <template>
-      <oe-request></oe-request>
-    </template>
+            <oe-request></oe-request>
+        </template>
     </test-fixture>
     <script>
         // making geturl function to return actual url as it is not needed in test cases
-        HTMLImports.whenReady(function() {
-            OEUtils.geturl = function(url) {
+        HTMLImports.whenReady(function () {
+            OEUtils.geturl = function (url) {
                 return url;
             }
         });
 
-        suite('<oe-request>', function() {
+        suite('<oe-request>', function () {
             var jsonResponseHeaders;
             var successfulRequestOptions;
             var request;
             var server;
-            setup(function() {
+            setup(function () {
                 jsonResponseHeaders = {
                     'Content-Type': 'application/json'
                 };
@@ -80,9 +80,11 @@
                     timeout: 100
                 };
             });
-            teardown(function() {
+            teardown(function () {
                 server.restore();
             });
+
+            /*
             suite('basic usage', function() {
 
                 test('creates network requests, requiring only `url`', function() {
@@ -268,6 +270,31 @@
                     server.respond();
                     expect(request.status).to.be.equal(500);
                     expect(request.statusText).to.be.equal('Internal Server Error');
+                });
+            });
+
+        */
+
+            suite('Testig certificate pinning.', function () {
+
+                before(function () {
+                    // runs before all tests in this block
+                    console.log("Inside before func");
+                });
+
+                test('treats status codes between 1 and 199 as errors', function () {
+                    request.send({
+                        url: '/responds_to_get_with_100'
+                    });
+                    server.respond();
+                    expect(request.succeeded).to.be.equal(false);
+                });
+                test('treats status codes between 300 and ∞ as errors', function () {
+                    request.send({
+                        url: '/responds_to_get_with_500'
+                    });
+                    server.respond();
+                    expect(request.succeeded).to.be.equal(false);
                 });
             });
 

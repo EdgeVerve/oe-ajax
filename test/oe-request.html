@@ -289,7 +289,8 @@
                                         case '/responds_to_get_with_100':
                                             response = {
                                                 error: '{"error": "Error occured with status 100"}',
-                                                status: 100
+                                                status: 100,
+                                                statusText: ''
                                             }
                                             errorCb(response);
                                             break;
@@ -305,10 +306,11 @@
 
                                         case '/responds_to_get_with_0':
                                             response = {
-                                                error: '{"xyz": "abc"}',
-                                                status: 0
+                                                data: '{"xyz": "abc"}',
+                                                status: 0,
+                                                statusText: ''
                                             }
-                                            errorCb(response);
+                                            successCb(response);
                                             break;
 
                                         case '/responds_to_get_with_json':
@@ -385,6 +387,18 @@
                     });
                     expect(request.status).to.be.equal(500);
                     expect(request.statusText).to.be.equal('Internal Server Error');
+                });
+
+                test('treats status code 0 as success, though the outcome is ambiguous', function () {
+
+                    // Note: file:// status code will probably be 0 no matter what happened.
+                    request.send({
+                        url: '/responds_to_get_with_0',
+                        headers: {},
+                        method: 'GET',
+                        body: null
+                    });
+                    expect(request.succeeded).to.be.equal(true);
                 });
 
             });

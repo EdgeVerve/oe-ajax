@@ -376,8 +376,6 @@ oe-request can be used to perform XMLHttpRequests.
 
                 cordova.plugin.http.sendRequest(finalURL, options, function (response) {
 
-                    // console.log("@@@@@@@@@@@@@@@@@@@@@@@");
-
                     self._setStatus(response.status);
                     self._setStatusText(response.statusText || '');
                     self._setResponse(JSON.parse(response.data));
@@ -385,9 +383,6 @@ oe-request can be used to perform XMLHttpRequests.
                     self.resolveCompletes(self);
 
                 }, function (response) {
-
-                    // console.log("!!!!!!!!!!!!!!!!!!!!!!!");
-
 
                     if (response.status === -1) {
                         alert('Unexpected error occured.');

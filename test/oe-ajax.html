@@ -801,6 +801,7 @@
                         server.restore();
                     });
                     test('the request and response events should bubble to window', function(done) {
+                        debugger;
                         server.restore();
                         var total = 0;
 
@@ -814,13 +815,13 @@
                         window.addEventListener('oe-ajax-request', incrementTotal);
                         window.addEventListener('response', incrementTotal);
                         window.addEventListener('oe-ajax-response', incrementTotal);
-                        debugger;
                         var ajax = fixture('Bubbles')[0];
                         ajax.generateRequest();
                         server.respond();
                     });
 
                     test('the request and error events should bubble to window', function(done) {
+                        debugger;
                         server.restore();
                         var total = 0;
 

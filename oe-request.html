@@ -253,15 +253,15 @@ oe-request can be used to perform XMLHttpRequests.
             }[options.handleAs];
             var headers = options.headers || Object.create(null);
             var newHeaders = Object.create(null);
-            for (var key in headers) {
+            headers && Object.keys(headers).forEach(function(key) {
                 newHeaders[key.toLowerCase()] = headers[key];
-            }
+            });
             headers = newHeaders;
 
             if (acceptType && !headers['accept']) {
                 headers['accept'] = acceptType;
             }
-            Object.keys(headers).forEach(function(requestHeader) {
+            headers && Object.keys(headers).forEach(function(requestHeader) {
                 if (/[A-Z]/.test(requestHeader)) {
                     Polymer.Base._error('Headers must be lower case, got', requestHeader);
                 }
@@ -409,7 +409,7 @@ oe-request can be used to perform XMLHttpRequests.
                 return '';
             }
             var pieces = [];
-            Object.keys(object).forEach(function(key) {
+            object && Object.keys(object).forEach(function(key) {
                 // TODO(rictic): handle array values here, in a consistent way with
                 //   iron-ajax params.
                 pieces.push(

@@ -37,7 +37,7 @@ oe-request can be used to perform XMLHttpRequests.
                 type: Object,
                 notify: true,
                 readOnly: true,
-                value: function() {
+                value: function () {
                     return new XMLHttpRequest();
                 }
             },
@@ -53,7 +53,7 @@ oe-request can be used to perform XMLHttpRequests.
                 type: Object,
                 notify: true,
                 readOnly: true,
-                value: function() {
+                value: function () {
                     return null;
                 }
             },
@@ -78,23 +78,6 @@ oe-request can be used to perform XMLHttpRequests.
                 value: ''
             },
 
-            /**
-             * A promise that resolves when the `xhr` response comes back, or rejects
-             * if there is an error before the `xhr` completes.
-             *
-             * @type {Promise}
-             */
-            completes: {
-                type: Object,
-                readOnly: true,
-                notify: true,
-                value: function() {
-                    return new Promise(function(resolve, reject) {
-                        this.resolveCompletes = resolve;
-                        this.rejectCompletes = reject;
-                    }.bind(this));
-                }
-            },
 
             /**
              * An object that contains progress information emitted by the XHR if
@@ -106,7 +89,7 @@ oe-request can be used to perform XMLHttpRequests.
                 type: Object,
                 notify: true,
                 readOnly: true,
-                value: function() {
+                value: function () {
                     return {};
                 }
             },
@@ -140,6 +123,24 @@ oe-request can be used to perform XMLHttpRequests.
                 notify: true,
                 readOnly: true,
                 value: false
+            },
+
+            /**
+             * A promise that resolves when the `xhr` response comes back, or rejects
+             * if there is an error before the `xhr` completes.
+             *
+             * @type {Promise}
+             */
+            completes: {
+                type: Object,
+                readOnly: true,
+                notify: true,
+                value: function () {
+                    return new Promise(function (resolve, reject) {
+                        this.resolveCompletes = resolve;
+                        this.rejectCompletes = reject;
+                    }.bind(this));
+                }
             }
         },
 
@@ -157,6 +158,7 @@ oe-request can be used to perform XMLHttpRequests.
             if (this.errored || this.aborted || this.timedOut) {
                 return false;
             }
+
             var status = this.xhr.status || 0;
 
             // Note: if we are using the file:// protocol, the status code will be 0
@@ -166,143 +168,243 @@ oe-request can be used to perform XMLHttpRequests.
         },
 
         /**
-         * Sends an HTTP request to the server and returns the XHR object.
-         *
-         * The handling of the `body` parameter will vary based on the Content-Type
-         * header. See the docs for iron-ajax's `body` param for details.
-         *
-         * @param {{
-         *   url: string,
-         *   method: (string|undefined),
-         *   async: (boolean|undefined),
-         *   body: (ArrayBuffer|ArrayBufferView|Blob|Document|FormData|null|string|undefined|Object),
-         *   headers: (Object|undefined),
-         *   handleAs: (string|undefined),
-         *   jsonPrefix: (string|undefined),
-         *   withCredentials: (boolean|undefined)}} options -
-         *     url The url to which the request is sent.
-         *     method The HTTP method to use, default is GET.
-         *     async By default, all requests are sent asynchronously. To send synchronous requests,
-         *         set to false.
-         *     body The content for the request body for POST method.
-         *     headers HTTP request headers.All keys must be lower case.
-         *     handleAs The response type. Default is 'text'.
-         *     withCredentials Whether or not to send credentials on the request. Default is false.
-         *   timeout: (Number|undefined)
-         * @return {Promise}
-         */
-        send: function(options) {
+        * Sends an HTTP request to the server and returns the XHR object.
+        *
+        * The handling of the `body` parameter will vary based on the Content-Type
+        * header. See the docs for iron-ajax's `body` param for details.
+        *
+        * @param {{
+        *   url: string,
+        *   method: (string|undefined),
+        *   async: (boolean|undefined),
+        *   body: (ArrayBuffer|ArrayBufferView|Blob|Document|FormData|null|string|undefined|Object),
+        *   headers: (Object|undefined),
+        *   handleAs: (string|undefined),
+        *   jsonPrefix: (string|undefined),
+        *   withCredentials: (boolean|undefined)}} options -
+        *     url The url to which the request is sent.
+        *     method The HTTP method to use, default is GET.
+        *     async By default, all requests are sent asynchronously. To send synchronous requests,
+        *         set to false.
+        *     body The content for the request body for POST method.
+        *     headers HTTP request headers.All keys must be lower case.
+        *     handleAs The response type. Default is 'text'.
+        *     withCredentials Whether or not to send credentials on the request. Default is false.
+        *   timeout: (Number|undefined)
+        * @return {Promise}
+        */
+        send: function (options) {
             var xhr = this.xhr;
+            var self = this;
 
-            if (xhr.readyState > 0) {
-                return null;
-            }
+            /**
+             * The requests made through oe-request have two options. If certificate pinning is needed while being used in 
+             * a hybrid mobile app environment, the "else" clause is considered. Otherwise, the execution flows through the "if"
+             * clause and makes regular xhr request.
+             * 
+             * In case of certificate pinning, the request is diverted through a cordova plugin(cordova-plugin-advanced-http) to 
+             * perform the necessary certificate verification.
+             * 
+             * 
+             * window.CERTIFICATE_PINNED - This is a flag used to control certificate pinning check.
+             *  
+             * window.CERTIFICATE_PINNED = true;
+             * 
+             * Follow the example below to call the plugin and pass the window.CERTIFICATE_PINNED  status
 
-            xhr.addEventListener('progress', function(progress) {
-                this._setProgress({
-                    lengthComputable: progress.lengthComputable,
-                    loaded: progress.loaded,
-                    total: progress.total
-                });
-            }.bind(this))
+                    cordova.plugin.http.enableSSLPinning(window.CERTIFICATE_PINNED, function () {
+                        console.log("Enabled certificate pinning.");
+                    }, function () {
+                        console.log("Error occured while enabling certificate pinning.");
+                    });
+                    
+            */
 
-            xhr.addEventListener('error', function(error) {
-                this._setErrored(true);
-                this._updateStatus();
-                this.rejectCompletes(error);
-            }.bind(this));
+            var enableCertificate = window.CERTIFICATE_PINNED || false;
 
-            xhr.addEventListener('timeout', function(error) {
-                this._setTimedOut(true);
-                this._updateStatus();
-                this.rejectCompletes(error);
-            }.bind(this));
+            if (!window.cordova || !enableCertificate) {
 
-            xhr.addEventListener('abort', function() {
-                this._updateStatus();
-                this.rejectCompletes(new Error('Request aborted.'));
-            }.bind(this));
-
-            // Called after all of the above.
-            xhr.addEventListener('loadend', function() {
-                this._updateStatus();
-                this._setResponse(this.parseResponse());
-
-                if (!this.succeeded) {
-                    this.rejectCompletes(new Error('The request failed with status code: ' + this.xhr.status));
-                    return;
+                if (xhr.readyState > 0) {
+                    return null;
                 }
 
-                this.resolveCompletes(this);
-            }.bind(this));
+                xhr.addEventListener('progress', function (progress) {
+                    this._setProgress({
+                        lengthComputable: progress.lengthComputable,
+                        loaded: progress.loaded,
+                        total: progress.total
+                    });
+                }.bind(this))
 
-            options.url = OEUtils.geturl(options.url);
-            this.url = options.url;
-            xhr.open(
-                options.method || 'GET',
-                options.url,
-                options.async !== false
-            );
+                xhr.addEventListener('error', function (error) {
+                    this._setErrored(true);
+                    this._updateStatus();
+                    this.rejectCompletes(error);
+                }.bind(this));
 
-            var acceptType = {
-                'json': 'application/json',
-                'text': 'text/plain',
-                'html': 'text/html',
-                'xml': 'application/xml',
-                'arraybuffer': 'application/octet-stream'
-            }[options.handleAs];
-            var headers = options.headers || Object.create(null);
-            var newHeaders = Object.create(null);
-            headers && Object.keys(headers).forEach(function(key) {
-                newHeaders[key.toLowerCase()] = headers[key];
-            });
-            headers = newHeaders;
+                xhr.addEventListener('timeout', function (error) {
+                    this._setTimedOut(true);
+                    this._updateStatus();
+                    this.rejectCompletes(error);
+                }.bind(this));
 
-            if (acceptType && !headers['accept']) {
-                headers['accept'] = acceptType;
-            }
-            headers && Object.keys(headers).forEach(function(requestHeader) {
-                if (/[A-Z]/.test(requestHeader)) {
-                    Polymer.Base._error('Headers must be lower case, got', requestHeader);
-                }
-                xhr.setRequestHeader(
-                    requestHeader,
-                    headers[requestHeader]
+                xhr.addEventListener('abort', function () {
+                    this._updateStatus();
+                    this.rejectCompletes(new Error('Request aborted.'));
+                }.bind(this));
+
+                // Called after all of the above.
+                xhr.addEventListener('loadend', function () {
+                    this._updateStatus();
+                    this._setResponse(this.parseResponse());
+
+                    if (!this.succeeded) {
+                        this.rejectCompletes(new Error('The request failed with status code: ' + this.xhr.status));
+                        return;
+                    }
+
+                    this.resolveCompletes(this);
+                }.bind(this));
+
+                options.url = OEUtils.geturl(options.url);
+                this.url = options.url;
+                xhr.open(
+                    options.method || 'GET',
+                    options.url,
+                    options.async !== false
                 );
-            }, this);
 
-            if (options.async !== false) {
-                if (options.async) {
-                    xhr.timeout = options.timeout;
+                var acceptType = {
+                    'json': 'application/json',
+                    'text': 'text/plain',
+                    'html': 'text/html',
+                    'xml': 'application/xml',
+                    'arraybuffer': 'application/octet-stream'
+                }[options.handleAs];
+                var headers = options.headers || Object.create(null);
+                var newHeaders = Object.create(null);
+                headers && Object.keys(headers).forEach(function (key) {
+                    newHeaders[key.toLowerCase()] = headers[key];
+                });
+                headers = newHeaders;
+
+                if (acceptType && !headers['accept']) {
+                    headers['accept'] = acceptType;
+                }
+                headers && Object.keys(headers).forEach(function (requestHeader) {
+                    if (/[A-Z]/.test(requestHeader)) {
+                        Polymer.Base._error('Headers must be lower case, got', requestHeader);
+                    }
+                    xhr.setRequestHeader(
+                        requestHeader,
+                        headers[requestHeader]
+                    );
+                }, this);
+
+                if (options.async !== false) {
+                    if (options.async) {
+                        xhr.timeout = options.timeout;
+                    }
+
+                    var handleAs = options.handleAs;
+
+                    // If a JSON prefix is present, the responseType must be 'text' or the
+                    // browser won’t be able to parse the response.
+                    if (!!options.jsonPrefix || !handleAs) {
+                        handleAs = 'text';
+                    }
+
+                    // In IE, `xhr.responseType` is an empty string when the response
+                    // returns. Hence, caching it as `xhr._responseType`.
+                    xhr.responseType = xhr._responseType = handleAs;
+
+                    // Cache the JSON prefix, if it exists.
+                    if (!!options.jsonPrefix) {
+                        xhr._jsonPrefix = options.jsonPrefix;
+                    }
                 }
 
-                var handleAs = options.handleAs;
+                xhr.withCredentials = !!options.withCredentials;
 
-                // If a JSON prefix is present, the responseType must be 'text' or the
-                // browser won’t be able to parse the response.
-                if (!!options.jsonPrefix || !handleAs) {
-                    handleAs = 'text';
+
+                var body = this._encodeBodyObject(options.body, headers['content-type']);
+
+                xhr.send(
+                    /** @type {ArrayBuffer|ArrayBufferView|Blob|Document|FormData|
+                               null|string|undefined} */
+                    (body));
+
+            } else {
+
+                options.headers["accept"] = {
+                    'json': 'application/json',
+                    'text': 'text/plain',
+                    'html': 'text/html',
+                    'xml': 'application/xml',
+                    'arraybuffer': 'application/octet-stream'
+                }[options.handleAs];
+
+                //Data Type
+                options.serializer = "json";
+
+                options.data = ((typeof (options.body)) === "object") ? options.body : JSON.parse(options.body);
+                options.body = null;
+                //Deciding to encode or not
+                var plainURL = options.url;
+                var requestParts = plainURL.split("?");
+                if (requestParts.length > 1) {
+
+                    var base = requestParts[0];
+                    var path = requestParts[1];
+                    var originalURL = path
+                    var decodedURL = decodeURI(originalURL);
+                    var finalURL = null;
+
+                    /*A case where the URL is not encoded*/
+                    if (decodedURL === originalURL) {
+                        finalURL = encodeURI(originalURL);
+                    } else {
+                        finalURL = originalURL;
+                    }
+
+                    finalURL = base + "?" + finalURL;
+                    finalURL = OEUtils.geturl(finalURL);
+                } else {
+                    finalURL = OEUtils.geturl(plainURL);
                 }
 
-                // In IE, `xhr.responseType` is an empty string when the response
-                // returns. Hence, caching it as `xhr._responseType`.
-                xhr.responseType = xhr._responseType = handleAs;
 
-                // Cache the JSON prefix, if it exists.
-                if (!!options.jsonPrefix) {
-                    xhr._jsonPrefix = options.jsonPrefix;
-                }
+                cordova.plugin.http.sendRequest(finalURL, options, function (response) {
+
+                    self._setStatus(response.status);
+                    self._setStatusText(response.statusText || '');
+                    self._setResponse(JSON.parse(response.data));
+
+                    self.resolveCompletes(self);
+
+                }, function (response) {
+
+                    if (response.status === -1) {
+                        alert('Unexpected error occured.');
+                        return;
+                    }
+
+                    self._setStatus(response.status);
+                    self._setStatusText(response.statusText || '');
+                    self._setResponse(JSON.parse(response.error));
+
+                    var xhrObj = {
+                        status: response.status,
+                        statusText: response.statusText || '',
+                        response: JSON.parse(response.error)
+                    }
+
+                    self._setXhr(xhrObj);
+                    self.rejectCompletes(new Error('The request failed with status code: ' + response.status));
+                    return;
+                });
+
             }
-
-            xhr.withCredentials = !!options.withCredentials;
-
-
-            var body = this._encodeBodyObject(options.body, headers['content-type']);
-
-            xhr.send(
-                /** @type {ArrayBuffer|ArrayBufferView|Blob|Document|FormData|
-                           null|string|undefined} */
-                (body));
 
             return this.completes;
         },
@@ -315,7 +417,7 @@ oe-request can be used to perform XMLHttpRequests.
          * @return {*} The parsed response,
          * or undefined if there was an empty response or parsing failed.
          */
-        parseResponse: function() {
+        parseResponse: function () {
             var xhr = this.xhr;
             var responseType = xhr.responseType || xhr._responseType;
             var preferResponseText = !this.xhr.responseType;
@@ -372,7 +474,7 @@ oe-request can be used to perform XMLHttpRequests.
         /**
          * Aborts the request.
          */
-        abort: function() {
+        abort: function () {
             this._setAborted(true);
             this.xhr.abort();
         },
@@ -384,7 +486,7 @@ oe-request can be used to perform XMLHttpRequests.
          * @return {*} Either the encoded body as a string, if successful,
          *     or the unaltered body object if no encoding could be inferred.
          */
-        _encodeBodyObject: function(body, contentType) {
+        _encodeBodyObject: function (body, contentType) {
             if (typeof body == 'string') {
                 return body; // Already encoded.
             }
@@ -404,12 +506,12 @@ oe-request can be used to perform XMLHttpRequests.
          * @param {Object} object The object to encode as x-www-form-urlencoded.
          * @return {string} .
          */
-        _wwwFormUrlEncode: function(object) {
+        _wwwFormUrlEncode: function (object) {
             if (!object) {
                 return '';
             }
             var pieces = [];
-            object && Object.keys(object).forEach(function(key) {
+            object && Object.keys(object).forEach(function (key) {
                 // TODO(rictic): handle array values here, in a consistent way with
                 //   iron-ajax params.
                 pieces.push(
@@ -423,7 +525,7 @@ oe-request can be used to perform XMLHttpRequests.
          * @param {*} str A key or value to encode as x-www-form-urlencoded.
          * @return {string} .
          */
-        _wwwFormUrlEncodePiece: function(str) {
+        _wwwFormUrlEncodePiece: function (str) {
             // Spec says to normalize newlines to \r\n and replace %20 spaces with +.
             // jQuery does this as well, so this is likely to be widely compatible.
             if (str === null) {
@@ -436,9 +538,10 @@ oe-request can be used to perform XMLHttpRequests.
         /**
          * Updates the status code and status text.
          */
-        _updateStatus: function() {
+        _updateStatus: function () {
             this._setStatus(this.xhr.status);
             this._setStatusText((this.xhr.statusText === undefined) ? '' : this.xhr.statusText);
         }
+
     });
 </script>

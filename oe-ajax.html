@@ -397,9 +397,19 @@ element.
             if (authToken) {
                 headers.Authorization = authToken;
             }
+            
             var header;
+            var self = this;
+
+            if(this._defaultSettings.headers instanceof Object){
+                var _defaultHeaders = this._defaultSettings.headers;
+                _defaultHeaders && Object.keys(_defaultHeaders).forEach(function(header){
+                    headers[header] = _defaultHeaders[header].toString();
+                });
+            }
+
             if (this.headers instanceof Object) {
-                var self = this;
+                
                 this.headers && Object.keys(this.headers).forEach(function(header) {
                     headers[header] = self.headers[header].toString();
                 });
@@ -544,5 +554,13 @@ element.
             }, this.debounceDuration);
         },
 
+        ready:function(){
+            //Fetch Global deffault setting for all oe-ajax 
+            var OEUtils = window.OEUtils;
+            OEUtils = OEUtils || {};
+            OEUtils.componentDefaults = OEUtils.componentDefaults || {};
+            OEUtils.componentDefaults["oe-ajax"] = OEUtils.componentDefaults["oe-ajax"] || {};
+            this._defaultSettings = OEUtils.componentDefaults["oe-ajax"];
+        }
     });
 </script>

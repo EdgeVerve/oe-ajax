@@ -400,6 +400,13 @@ element.
             
             var header;
             var self = this;
+            if(!this._defaultSettings){
+                var OEUtils = window.OEUtils;
+                OEUtils = OEUtils || {};
+                OEUtils.componentDefaults = OEUtils.componentDefaults || {};
+                OEUtils.componentDefaults["oe-ajax"] = OEUtils.componentDefaults["oe-ajax"] || {};
+                this._defaultSettings = OEUtils.componentDefaults["oe-ajax"];
+            }
 
             if(this._defaultSettings.headers instanceof Object){
                 var _defaultHeaders = this._defaultSettings.headers;
@@ -552,15 +559,6 @@ element.
                     this.generateRequest();
                 }
             }, this.debounceDuration);
-        },
-
-        ready:function(){
-            //Fetch Global deffault setting for all oe-ajax 
-            var OEUtils = window.OEUtils;
-            OEUtils = OEUtils || {};
-            OEUtils.componentDefaults = OEUtils.componentDefaults || {};
-            OEUtils.componentDefaults["oe-ajax"] = OEUtils.componentDefaults["oe-ajax"] || {};
-            this._defaultSettings = OEUtils.componentDefaults["oe-ajax"];
         }
     });
 </script>

@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+  <title>oe-ajax demo</title>
+
+  <script src="../node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
+
+  <script type="module">
+    import '@polymer/iron-demo-helpers/demo-pages-shared-styles';
+    import '@polymer/iron-demo-helpers/demo-snippet';
+    import '@polymer/iron-image/iron-image';
+    import '@polymer/polymer/lib/elements/dom-bind';
+    import '@polymer/polymer/lib/elements/dom-repeat';
+    import '@polymer/polymer/lib/elements/custom-style';
+  </script>
+
+  <script type="module" src="../oe-ajax.js"></script>
+
+  <script type="text/javascript">
+    window.OEUtils = window.OEUtils || {};   
+  </script>
+  <custom-style>
+    <style is="custom-style" include="demo-pages-shared-styles">
+      .horizontal-section{
+       display: flex;
+       margin-bottom: 8px;
+      }
+      .desc{
+        width:320px;
+        padding-right: 16px;
+        box-sizing: border-box;
+        text-align: justify;
+      }
+      a{
+        text-decoration: none;
+        cursor: pointer;
+      }
+    </style>
+  </custom-style>
+</head>
+
+<body>
+  <div class="vertical-section-container centered">
+    <h3>Ajax request</h3>
+    <demo-snippet>
+      <template>
+        <dom-bind>
+          <template>
+            <oe-ajax auto url="https://www.googleapis.com/youtube/v3/search" params='{"part":"snippet", "q":"Google Polymer", "key": "AIzaSyAuecFZ9xJXbGDkQYWBmYrtzOGJD-iDIgI", "type": "video"}'
+        handle-as="json" last-response="{{ajaxResponse}}"></oe-ajax>
+        <ul>
+          <dom-repeat items="[[ajaxResponse.items]]">
+            <template>
+              <li class="horizontal-section">
+                <div class="desc">
+                  <h3><a href$="https://www.youtube.com/watch?v=[[item.id.videoId]]" target="_blank">[[item.snippet.title]]</a></h3>
+                  <p>[[item.snippet.description]]</p>
+                </div>
+                <iron-image src="[[item.snippet.thumbnails.high.url]]" width="200" height="200" sizing="cover" preload fade></iron-image>
+              </li>
+            </template>
+          </dom-repeat>
+        </ul>
+          </template>  
+        </dom-bind>
+      </template>
+    </demo-snippet>
+  </div>
+</body>
+
+</html>

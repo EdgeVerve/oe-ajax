@@ -449,14 +449,6 @@ class OeAjax extends OECommonMixin(PolymerElement) {
       headers.Authorization = authToken;
     }
 
-    if(!this._defaultSettings){
-      var OEUtils = window.OEUtils;
-      OEUtils = OEUtils || {};
-      OEUtils.componentDefaults = OEUtils.componentDefaults || {};
-      OEUtils.componentDefaults["oe-ajax"] = OEUtils.componentDefaults["oe-ajax"] || {};
-      this._defaultSettings = OEUtils.componentDefaults["oe-ajax"];
-    }
-
     if (this._defaultSettings.headers instanceof Object) {
       var _defaultHeaders = this._defaultSettings.headers;
       _defaultHeaders && Object.keys(_defaultHeaders).forEach(function (header) {
@@ -490,6 +482,13 @@ class OeAjax extends OECommonMixin(PolymerElement) {
    *   rejectWithRequest: (boolean|undefined)}}
    */
   toRequestOptions() {
+    if(!this._defaultSettings){
+      var OEUtils = window.OEUtils;
+      OEUtils = OEUtils || {};
+      OEUtils.componentDefaults = OEUtils.componentDefaults || {};
+      OEUtils.componentDefaults["oe-ajax"] = OEUtils.componentDefaults["oe-ajax"] || {};
+      this._defaultSettings = OEUtils.componentDefaults["oe-ajax"];
+    }
     return {
       url: this.requestUrl || '',
       method: this.method,
@@ -499,7 +498,7 @@ class OeAjax extends OECommonMixin(PolymerElement) {
       handleAs: this.handleAs,
       jsonPrefix: this.jsonPrefix,
       withCredentials: this.withCredentials,
-      timeout: this.timeout || (OEUtils.settings ? OEUtils.settings.ajaxTimeout : 0) || 0,
+      timeout: this.timeout || this._defaultSettings.timeout || 0,
       rejectWithRequest: this.rejectWithRequest,
     };
   }

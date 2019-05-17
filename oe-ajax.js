@@ -499,7 +499,7 @@ class OeAjax extends OECommonMixin(PolymerElement) {
       handleAs: this.handleAs,
       jsonPrefix: this.jsonPrefix,
       withCredentials: this.withCredentials,
-      timeout: this.timeout,
+      timeout: this.timeout || (OEUtils.settings ? OEUtils.settings.ajaxTimeout : 0) || 0,
       rejectWithRequest: this.rejectWithRequest,
     };
   }

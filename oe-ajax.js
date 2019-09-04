@@ -536,7 +536,7 @@ class OeAjax extends OECommonMixin(PolymerElement) {
         request: request,
         options: requestOptions
       }, {
-        bubbles: true,
+        bubbles: this.bubbles,
         cancelable: true
       });
 
@@ -581,7 +581,10 @@ class OeAjax extends OECommonMixin(PolymerElement) {
   _handleResponse(request) {
     
     /* Allow modification of response */
-    var evt = this.fire('oe-ajax-postreceive', request);
+    var evt = this.fire('oe-ajax-postreceive', request, {
+      bubbles: this.bubbles,
+      cancelable: true
+    });
 
     if (request === this.lastRequest) {
       this._setLastResponse(request.response);

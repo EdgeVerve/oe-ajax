@@ -39,11 +39,17 @@ import "oe-utils/oe-utils.js";
 class OeAjax extends OECommonMixin(PolymerElement) {
   static get is() { return 'oe-ajax'; }
 
+  /** 
+   * Fired before a request is sent.
+   * Details contains 'request' and 'requestOptions' object.
+   * @event oe-ajax-presend
+   */
+
   /**
-     * Fired before a request is sent.
-     *
-     * @event oe-ajax-presend
-     */
+   * Fired after a response is received.
+   * Details is the 'request' object. 
+   * @event oe-ajax-postreceive
+   */
 
   /**
    * Fired when a request is sent.
@@ -573,6 +579,13 @@ class OeAjax extends OECommonMixin(PolymerElement) {
   }
 
   _handleResponse(request) {
+    
+    /* Allow modification of response */
+    var evt = this.fire('oe-ajax-postreceive', request, {
+      bubbles: this.bubbles,
+      cancelable: true
+    });
+
     if (request === this.lastRequest) {
       this._setLastResponse(request.response);
       this._setLastError(null);

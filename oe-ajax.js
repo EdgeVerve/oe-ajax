@@ -5,7 +5,7 @@
 // Once 
 import { PolymerElement } from "@polymer/polymer/polymer-element.js";
 import { OECommonMixin } from "oe-mixins/oe-common-mixin.js";
-import {Base} from '@polymer/polymer/polymer-legacy.js';
+import { Base } from '@polymer/polymer/polymer-legacy.js';
 import "@polymer/iron-ajax/iron-request.js";
 import "oe-utils/oe-utils.js";
 
@@ -31,6 +31,30 @@ import "oe-utils/oe-utils.js";
  * You can trigger a request explicitly by calling `generateRequest` on the
  * element.
  * 
+ * Default settings to oe-ajax can be provided from in the `window.OEUtils.componentDefaults["oe-ajax"]` object
+ * ```javascript
+ *  window.OEUtils = window.OEUtils || {};
+ *  OEUtils.componentDefaults = OEUtils.componentDefaults || {};
+ *  OEUtils.componentDefaults["oe-ajax"] = {
+ *    headers: {                // default headers added to all ajax calls ,can be overriden by element level 'headers' property
+ *        "custom-auth":"dev-token"
+ *    },
+ *    timeout : 10000,
+ *    presendHook : function (detail , ?next){
+ *      //Allows modification of request calls
+ *      //detail object contains request , options , element
+ *      //optional parameter next is a callback function, should be called in case of async operations
+ *    },
+ *    postreceiveHook:function(detail, ?next){
+ *      //Allows modification of response of request calls.
+ *      //detail object contains request element from which response can be obtained
+ *      //optional parameter next is a callback function, should be called in case of async operations    
+ *    }
+ * }
+ *  
+ * ```
+ * 
+ * 
  * @customElement
  * @polymer
  * @appliesMixin OECommonMixin
@@ -38,18 +62,6 @@ import "oe-utils/oe-utils.js";
  */
 class OeAjax extends OECommonMixin(PolymerElement) {
   static get is() { return 'oe-ajax'; }
-
-  /** 
-   * Fired before a request is sent.
-   * Details contains 'request' and 'requestOptions' object.
-   * @event oe-ajax-presend
-   */
-
-  /**
-   * Fired after a response is received.
-   * Details is the 'request' object. 
-   * @event oe-ajax-postreceive
-   */
 
   /**
    * Fired when a request is sent.
@@ -488,7 +500,7 @@ class OeAjax extends OECommonMixin(PolymerElement) {
    *   rejectWithRequest: (boolean|undefined)}}
    */
   toRequestOptions() {
-    if(!this._defaultSettings){
+    if (!this._defaultSettings) {
       var OEUtils = window.OEUtils;
       OEUtils = OEUtils || {};
       OEUtils.componentDefaults = OEUtils.componentDefaults || {};
@@ -531,74 +543,100 @@ class OeAjax extends OECommonMixin(PolymerElement) {
       .catch(this._handleError.bind(this, request))
       .then(this._discardRequest.bind(this, request));
 
-    var evt = this.fire(
-      'oe-ajax-presend', {
-        request: request,
-        options: requestOptions
-      }, {
-        bubbles: this.bubbles,
-        cancelable: true
-      });
+    var sendIronRequest = function () {
 
-    if (evt.defaultPrevented) {
-      request.abort();
-      request.rejectCompletes(request);
-      return request;
-    }
+      if (this.lastRequest) {
+        this.lastRequest.removeEventListener(
+          'iron-request-progress-changed', this._boundOnProgressChanged);
+      }
 
-    if (this.lastRequest) {
-      this.lastRequest.removeEventListener(
+      request.addEventListener(
         'iron-request-progress-changed', this._boundOnProgressChanged);
-    }
+      request.send(requestOptions);
+      this._setLastProgress(null);
+      this._setLastRequest(request);
+      this._setLoading(true);
 
-    request.addEventListener(
-      'iron-request-progress-changed', this._boundOnProgressChanged);
-    request.send(requestOptions);
-    this._setLastProgress(null);
-    this._setLastRequest(request);
-    this._setLoading(true);
+      this.fire(
+        'request', {
+          request: request,
+          options: requestOptions
+        }, {
+          bubbles: this.bubbles,
+          composed: true
+        });
 
-    this.fire(
-      'request', {
+      this.fire('oe-ajax-request', {
         request: request,
         options: requestOptions
       }, {
-        bubbles: this.bubbles,
-        composed: true
-      });
+          bubbles: this.bubbles,
+          composed: true
+        });
 
-    this.fire('oe-ajax-request', {
-      request: request,
-      options: requestOptions
-    }, {
-        bubbles: this.bubbles,
-        composed: true
-      });
+      return request;
+    };
 
-    return request;
+    if (typeof this._defaultSettings.presendHook === "function") {
+      if (this._defaultSettings.presendHook.length === 2) {
+        this._defaultSettings.presendHook({
+          request: request,
+          options: requestOptions,
+          element: this
+        }, function () {
+          sendIronRequest.call(this);
+        }.bind(this));
+      } else {
+        this._defaultSettings.presendHook({
+          request: request,
+          options: requestOptions,
+          element: this
+        });
+        return sendIronRequest.call(this);
+      }
+    } else {
+      return sendIronRequest.call(this);
+    }
+
   }
 
   _handleResponse(request) {
-    
-    /* Allow modification of response */
-    var evt = this.fire('oe-ajax-postreceive', request, {
-      bubbles: this.bubbles,
-      cancelable: true
-    });
 
-    if (request === this.lastRequest) {
-      this._setLastResponse(request.response);
-      this._setLastError(null);
-      this._setLoading(false);
+    var handleRequestResponse = function () {
+      if (request === this.lastRequest) {
+        this._setLastResponse(request.response);
+        this._setLastError(null);
+        this._setLoading(false);
+      }
+      this.fire('response', request, {
+        bubbles: this.bubbles,
+        composed: true
+      });
+      this.fire('oe-ajax-response', request, {
+        bubbles: this.bubbles,
+        composed: true
+      });
+    };
+
+
+    if (typeof this._defaultSettings.postreceiveHook === "function") {
+      if (this._defaultSettings.postreceiveHook.length === 2) {
+        this._defaultSettings.postreceiveHook({
+          request: request,
+          element: this
+        }, function () {
+          handleRequestResponse.call(this);
+        }.bind(this));
+      } else {
+        this._defaultSettings.postreceiveHook({
+          request: request,
+          element: this
+        });
+        return handleRequestResponse.call(this);
+      }
+    } else {
+      return handleRequestResponse.call(this);
     }
-    this.fire('response', request, {
-      bubbles: this.bubbles,
-      composed: true
-    });
-    this.fire('oe-ajax-response', request, {
-      bubbles: this.bubbles,
-      composed: true
-    });
   }
 
   _handleError(request, error) {

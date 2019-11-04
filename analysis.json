@@ -2,7 +2,7 @@
   "schema_version": "1.0.0",
   "elements": [
     {
-      "description": "# oe-ajax\n\nThe `oe-ajax` element exposes network request functionality.\n\n```\n<oe-ajax auto url=\"http://gdata.youtube.com/feeds/api/videos/\"\n        params='{\"alt\":\"json\", \"q\":\"chrome\"}'\n        handle-as=\"json\" on-response=\"handleResponse\"\n        debounce-duration=\"300\"></oe-ajax>\n```\n\nWith `auto` set to `true`, the element performs a request whenever\nits `url`, `params` or `body` properties are changed. Automatically generated\nrequests will be debounced in the case that multiple attributes are changed\nsequentially.\n\nNote: The `params` attribute must be double quoted JSON.\n\nYou can trigger a request explicitly by calling `generateRequest` on the\nelement.\n\nDefault settings to oe-ajax can be provided from in the `window.OEUtils.componentDefaults[\"oe-ajax\"]` object\n```javascript\n window.OEUtils = window.OEUtils || {};\n OEUtils.componentDefaults = OEUtils.componentDefaults || {};\n OEUtils.componentDefaults[\"oe-ajax\"] = {\n   headers: {                // default headers added to all ajax calls ,can be overriden by element level 'headers' property\n       \"custom-auth\":\"dev-token\"\n   },\n   timeout : 10000,\n   presendHook : function (detail , ?next){\n     //Allows modification of request calls\n     //detail object contains request , options , element\n     //optional parameter next is a callback function, should be called in case of async operations\n   },\n   postreceiveHook:function(detail, ?next){\n     //Allows modification of response of request calls.\n     //detail object contains request element from which response can be obtained\n     //optional parameter next is a callback function, should be called in case of async operations\n   }\n}\n\n```",
+      "description": "# oe-ajax\n\nThe `oe-ajax` element exposes network request functionality.\n\n```\n<oe-ajax auto url=\"http://gdata.youtube.com/feeds/api/videos/\"\n        params='{\"alt\":\"json\", \"q\":\"chrome\"}'\n        handle-as=\"json\" on-response=\"handleResponse\"\n        debounce-duration=\"300\"></oe-ajax>\n```\n\nWith `auto` set to `true`, the element performs a request whenever\nits `url`, `params` or `body` properties are changed. Automatically generated\nrequests will be debounced in the case that multiple attributes are changed\nsequentially.\n\nNote: The `params` attribute must be double quoted JSON.\n\nYou can trigger a request explicitly by calling `generateRequest` on the\nelement.\n\nDefault settings to oe-ajax can be provided from in the `window.OEUtils.componentDefaults[\"oe-ajax\"]` object\n```javascript\n window.OEUtils = window.OEUtils || {};\n OEUtils.componentDefaults = OEUtils.componentDefaults || {};\n OEUtils.componentDefaults[\"oe-ajax\"] = {\n   headers: {                // default headers added to all ajax calls ,can be overriden by element level 'headers' property\n       \"custom-auth\":\"dev-token\"\n   },\n   timeout : 10000,\n   presendHook : function (detail , ?next){\n     //Allows modification of request calls\n     //detail object contains request , options , element\n     //optional parameter next is a callback function, should be called in case of async operations\n   },\n   postreceiveHook:function(detail, ?next){\n     //Allows modification of response of request calls. Will be called in case of both successful response or error scenarios.\n     //detail object contains request , error , and element from which response can be obtained\n     //optional parameter next is a callback function, should be called in case of async operations\n   }\n}\n\n```",
       "summary": "",
       "path": "oe-ajax.js",
       "properties": [
@@ -651,7 +651,7 @@
               "column": 2
             },
             "end": {
-              "line": 675,
+              "line": 700,
               "column": 3
             }
           },
@@ -663,10 +663,7 @@
             {
               "name": "error"
             }
-          ],
-          "return": {
-            "type": "void"
-          }
+          ]
         },
         {
           "name": "_discardRequest",
@@ -674,11 +671,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 677,
+              "line": 702,
               "column": 2
             },
             "end": {
-              "line": 683,
+              "line": 708,
               "column": 3
             }
           },
@@ -698,11 +695,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 685,
+              "line": 710,
               "column": 2
             },
             "end": {
-              "line": 695,
+              "line": 720,
               "column": 3
             }
           },
@@ -718,11 +715,11 @@
           "privacy": "private",
           "sourceRange": {
             "start": {
-              "line": 734,
+              "line": 759,
               "column": 2
             },
             "end": {
-              "line": 806,
+              "line": 831,
               "column": 3
             }
           },
@@ -753,7 +750,7 @@
           "column": 0
         },
         "end": {
-          "line": 807,
+          "line": 832,
           "column": 1
         }
       },

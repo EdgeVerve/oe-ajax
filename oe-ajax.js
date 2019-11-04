@@ -46,8 +46,8 @@ import "oe-utils/oe-utils.js";
  *      //optional parameter next is a callback function, should be called in case of async operations
  *    },
  *    postreceiveHook:function(detail, ?next){
- *      //Allows modification of response of request calls.
- *      //detail object contains request element from which response can be obtained
+ *      //Allows modification of response of request calls. Will be called in case of both successful response or error scenarios.
+ *      //detail object contains request , error , and element from which response can be obtained
  *      //optional parameter next is a callback function, should be called in case of async operations    
  *    }
  * }
@@ -640,39 +640,64 @@ class OeAjax extends OECommonMixin(PolymerElement) {
   }
 
   _handleError(request, error) {
-    if (this.verbose) {
-      Base._error(error);
-    }
 
-    if (request === this.lastRequest) {
-      this._setLastError({
-        request: request,
-        error: error,
-        status: request.xhr.status,
-        statusText: request.xhr.statusText,
-        response: request.xhr.response
-      });
-      this._setLastResponse(null);
-      this._setLoading(false);
-    }
+    var handleRequestError = function () {
+      if (this.verbose) {
+        Base._error(error);
+      }
 
-    // Tests fail if this goes after the normal this.fire('error', ...)
-    this.fire('oe-ajax-error', {
-      request: request,
-      error: error
-    }, {
-        bubbles: this.bubbles,
-        composed: true
-      });
+      if (request === this.lastRequest) {
+        this._setLastError({
+          request: request,
+          error: error,
+          status: request.xhr.status,
+          statusText: request.xhr.statusText,
+          response: request.xhr.response
+        });
+        this._setLastResponse(null);
+        this._setLoading(false);
+      }
 
-    this.fire(
-      'error', {
+      // Tests fail if this goes after the normal this.fire('error', ...)
+      this.fire('oe-ajax-error', {
         request: request,
         error: error
       }, {
-        bubbles: this.bubbles,
-        composed: true
-      });
+          bubbles: this.bubbles,
+          composed: true
+        });
+
+      this.fire(
+        'error', {
+          request: request,
+          error: error
+        }, {
+          bubbles: this.bubbles,
+          composed: true
+        });
+    };
+
+    if (typeof this._defaultSettings.postreceiveHook === "function") {
+      if (this._defaultSettings.postreceiveHook.length === 2) {
+        this._defaultSettings.postreceiveHook({
+          request: request,
+          error: error,
+          element: this
+        }, function () {
+          handleRequestError.call(this);
+        }.bind(this));
+      } else {
+        this._defaultSettings.postreceiveHook({
+          request: request,
+          error: error,
+          element: this
+        });
+        return handleRequestError.call(this);
+      }
+    } else {
+      return handleRequestError.call(this);
+    }
+
   }
 
   _discardRequest(request) {

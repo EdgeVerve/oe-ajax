@@ -35,7 +35,12 @@
       },
       postreceiveHook: function (detail) {
         var request = detail.request;
-        console.log('Region code of response :', request.response && request.response.regionCode);
+        var error = detail.error;
+        if (error) {
+          console.warn('Captured error : ', error);
+        } else {
+          console.log('Region code of response :', request.response && request.response.regionCode);
+        }
       }
     }
   </script>
@@ -71,6 +76,9 @@
             <oe-ajax auto url="https://www.googleapis.com/youtube/v3/search"
               params='{"part":"snippet", "q":"Google Polymer", "key": "AIzaSyAuecFZ9xJXbGDkQYWBmYrtzOGJD-iDIgI", "type": "video"}'
               handle-as="json" last-response="{{ajaxResponse}}"></oe-ajax>
+            <oe-ajax auto url="https://www.failedresponse.com/"
+              params='{"part":"snippet", "q":"Google Polymer", "key": "AIzaSyAuecFZ9xJXbGDkQYWBmYrtzOGJD-iDIgI", "type": "video"}'
+              handle-as="json"></oe-ajax>
             <ul>
               <dom-repeat items="[[ajaxResponse.items]]">
                 <template>

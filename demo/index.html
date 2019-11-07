@@ -21,21 +21,44 @@
   <script type="module" src="../oe-ajax.js"></script>
 
   <script type="text/javascript">
-    window.OEUtils = window.OEUtils || {};   
+    window.OEUtils = window.OEUtils || {};
+    OEUtils.componentDefaults = OEUtils.componentDefaults || {};
+    OEUtils.componentDefaults["oe-ajax"] = {
+      presendHook: function (detail, next) {
+        var requestOptions = detail.options;
+        setTimeout(function () {
+          requestOptions.headers["custom-auth-header"] = "encrpt";
+          console.log('Delay complete');
+          next();
+        }, 5000);
+        console.log('Delaying ajax calls');
+      },
+      postreceiveHook: function (detail) {
+        var request = detail.request;
+        var error = detail.error;
+        if (error) {
+          console.warn('Captured error : ', error);
+        } else {
+          console.log('Region code of response :', request.response && request.response.regionCode);
+        }
+      }
+    }
   </script>
   <custom-style>
     <style is="custom-style" include="demo-pages-shared-styles">
-      .horizontal-section{
-       display: flex;
-       margin-bottom: 8px;
+      .horizontal-section {
+        display: flex;
+        margin-bottom: 8px;
       }
-      .desc{
-        width:320px;
+
+      .desc {
+        width: 320px;
         padding-right: 16px;
         box-sizing: border-box;
         text-align: justify;
       }
-      a{
+
+      a {
         text-decoration: none;
         cursor: pointer;
       }
@@ -50,22 +73,28 @@
       <template>
         <dom-bind>
           <template>
-            <oe-ajax auto url="https://www.googleapis.com/youtube/v3/search" params='{"part":"snippet", "q":"Google Polymer", "key": "AIzaSyAuecFZ9xJXbGDkQYWBmYrtzOGJD-iDIgI", "type": "video"}'
-        handle-as="json" last-response="{{ajaxResponse}}"></oe-ajax>
-        <ul>
-          <dom-repeat items="[[ajaxResponse.items]]">
-            <template>
-              <li class="horizontal-section">
-                <div class="desc">
-                  <h3><a href$="https://www.youtube.com/watch?v=[[item.id.videoId]]" target="_blank">[[item.snippet.title]]</a></h3>
-                  <p>[[item.snippet.description]]</p>
-                </div>
-                <iron-image src="[[item.snippet.thumbnails.high.url]]" width="200" height="200" sizing="cover" preload fade></iron-image>
-              </li>
-            </template>
-          </dom-repeat>
-        </ul>
-          </template>  
+            <oe-ajax auto url="https://www.googleapis.com/youtube/v3/search"
+              params='{"part":"snippet", "q":"Google Polymer", "key": "AIzaSyAuecFZ9xJXbGDkQYWBmYrtzOGJD-iDIgI", "type": "video"}'
+              handle-as="json" last-response="{{ajaxResponse}}"></oe-ajax>
+            <oe-ajax auto url="https://www.failedresponse.com/"
+              params='{"part":"snippet", "q":"Google Polymer", "key": "AIzaSyAuecFZ9xJXbGDkQYWBmYrtzOGJD-iDIgI", "type": "video"}'
+              handle-as="json"></oe-ajax>
+            <ul>
+              <dom-repeat items="[[ajaxResponse.items]]">
+                <template>
+                  <li class="horizontal-section">
+                    <div class="desc">
+                      <h3><a href$="https://www.youtube.com/watch?v=[[item.id.videoId]]"
+                          target="_blank">[[item.snippet.title]]</a></h3>
+                      <p>[[item.snippet.description]]</p>
+                    </div>
+                    <iron-image src="[[item.snippet.thumbnails.high.url]]" width="200" height="200" sizing="cover"
+                      preload fade></iron-image>
+                  </li>
+                </template>
+              </dom-repeat>
+            </ul>
+          </template>
         </dom-bind>
       </template>
     </demo-snippet>

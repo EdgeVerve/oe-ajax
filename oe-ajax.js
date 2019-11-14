@@ -39,11 +39,17 @@ import "oe-utils/oe-utils.js";
 class OeAjax extends OECommonMixin(PolymerElement) {
   static get is() { return 'oe-ajax'; }
 
+  /** 
+   * Fired before a request is sent.
+   * Details contains 'request' and 'requestOptions' object.
+   * @event oe-ajax-presend
+   */
+
   /**
-     * Fired before a request is sent.
-     *
-     * @event oe-ajax-presend
-     */
+   * Fired after a response is received.
+   * Details is the 'request' object. 
+   * @event oe-ajax-postreceive
+   */
 
   /**
    * Fired when a request is sent.
@@ -449,14 +455,6 @@ class OeAjax extends OECommonMixin(PolymerElement) {
       headers.Authorization = authToken;
     }
 
-    if(!this._defaultSettings){
-      var OEUtils = window.OEUtils;
-      OEUtils = OEUtils || {};
-      OEUtils.componentDefaults = OEUtils.componentDefaults || {};
-      OEUtils.componentDefaults["oe-ajax"] = OEUtils.componentDefaults["oe-ajax"] || {};
-      this._defaultSettings = OEUtils.componentDefaults["oe-ajax"];
-    }
-
     if (this._defaultSettings.headers instanceof Object) {
       var _defaultHeaders = this._defaultSettings.headers;
       _defaultHeaders && Object.keys(_defaultHeaders).forEach(function (header) {
@@ -490,6 +488,13 @@ class OeAjax extends OECommonMixin(PolymerElement) {
    *   rejectWithRequest: (boolean|undefined)}}
    */
   toRequestOptions() {
+    if(!this._defaultSettings){
+      var OEUtils = window.OEUtils;
+      OEUtils = OEUtils || {};
+      OEUtils.componentDefaults = OEUtils.componentDefaults || {};
+      OEUtils.componentDefaults["oe-ajax"] = OEUtils.componentDefaults["oe-ajax"] || {};
+      this._defaultSettings = OEUtils.componentDefaults["oe-ajax"];
+    }
     return {
       url: this.requestUrl || '',
       method: this.method,
@@ -499,7 +504,7 @@ class OeAjax extends OECommonMixin(PolymerElement) {
       handleAs: this.handleAs,
       jsonPrefix: this.jsonPrefix,
       withCredentials: this.withCredentials,
-      timeout: this.timeout,
+      timeout: this.timeout || this._defaultSettings.timeout || 0,
       rejectWithRequest: this.rejectWithRequest,
     };
   }
@@ -574,6 +579,13 @@ class OeAjax extends OECommonMixin(PolymerElement) {
   }
 
   _handleResponse(request) {
+    
+    /* Allow modification of response */
+    var evt = this.fire('oe-ajax-postreceive', request, {
+      bubbles: this.bubbles,
+      cancelable: true
+    });
+
     if (request === this.lastRequest) {
       this._setLastResponse(request.response);
       this._setLastError(null);

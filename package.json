@@ -11,8 +11,8 @@
   "dependencies": {
     "@polymer/iron-ajax": "^3.0.1",
     "@polymer/polymer": "^3.1.0",
-    "oe-mixins": "git+http://evgit/oecloud.io/oe-mixins.git#2.1.0",
-    "oe-utils": "git+http://evgit/oecloud.io/oe-utils.git#2.1.0",
+    "oe-mixins": "git+http://evgit/oecloud.io/oe-mixins.git#master",
+    "oe-utils": "git+http://evgit/oecloud.io/oe-utils.git#master",
     "promise-polyfill": "8.1.0"
   },
   "devDependencies": {
